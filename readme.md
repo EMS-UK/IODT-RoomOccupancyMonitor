@@ -87,5 +87,3 @@ text
 - For best performance, use a machine with a compatible GPU.
 
 ---
-
-**Enjoy real-time people analytics with state-of-the-art detection and tracking!**
