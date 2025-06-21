@@ -3,7 +3,7 @@
 ## Overview
 
 This project provides a **real-time people counting and tracking application** using [YOLOv11](https://github.com/ultralytics/ultralytics) for detection and [ByteTrack](https://github.com/ifzhang/ByteTrack) for multi-object tracking.  
-A [Streamlit](https://streamlit.io/) dashboard displays live video with bounding boxes and unique IDs, plots occupancy over time, and logs results to a CSV file for further analysis.
+It logs occupancy data (number of people in frame) with timestamps and publishes this information to an MQTT broker at fixed intervals.
 
 ---
 
@@ -11,26 +11,26 @@ A [Streamlit](https://streamlit.io/) dashboard displays live video with bounding
 
 - **Real-time people detection** using YOLOv11.
 - **Multi-person tracking** with persistent IDs via ByteTrack.
-- **Interactive Streamlit dashboard** with live video and occupancy plot.
-- **CSV logging** of timestamp, people count, and all active IDs per frame.
+- **CSV logging** of timestamp and people count per frame.
+- **MQTT publishing** of occupancy data every fixed interval (e.g. 10 seconds).
+- Designed for **headless edge deployment**, with optional video display.
 
 ---
 
 ## How It Works
 
 1. **Detection:**  
-   Each frame is processed by YOLOv11 to detect people.
+   Each frame is processed by YOLOv8 to detect people (`class=0`).
 
 2. **Tracking:**  
-   Detected people are tracked with ByteTrack, which assigns and maintains unique IDs.
+   ByteTrack assigns persistent IDs to detected individuals to track them across frames.
 
-3. **Visualization:**  
-   - Bounding boxes and IDs are drawn on the video.
-   - The current people count is shown on the video.
-   - Occupancy over time is plotted in real time.
+3. **Counting:**  
+   Unique tracked IDs in each frame are counted to determine room occupancy.
 
-4. **Logging:**  
-   Each frame's timestamp, people count, and active IDs are saved to a CSV file.
+4. **Logging & Publishing:**  
+   - Each frame's timestamp and occupancy are logged to CSV.
+   - At regular intervals, occupancy is published to an MQTT topic.
 
 ---
 
@@ -38,35 +38,49 @@ A [Streamlit](https://streamlit.io/) dashboard displays live video with bounding
 
 ### 1. Install Dependencies
 
-pip install ultralytics streamlit plotly opencv-python
-text
+```bash
+pip install ultralytics opencv-python paho-mqtt
+```
 
-### 2. Download the YOLOv11 Model
+### 2. Download the YOLOv8 Model
 
-Place the `yolov11m.pt` model file in your working directory.
+Place the `yolo11m.pt` (or other YOLOv11 model) in your working directory. You can get it from:
 
-### 3. Prepare Your Video
+```bash
+from ultralytics import YOLO
+YOLO('yolov8n.pt')
+```
 
-- Set `video_path = "Video.mp4"` in the script, or use `0` for webcam.
+### 3. Configure Script
 
-### 4. Run the App
+- Set `video_path = "Video.mp4"` or `0` for webcam.
+- Set your MQTT broker URL and topic.
 
-streamlit run your_script.py
-text
+### 4. Run the Script
 
-### 5. View Results
+```bash
+python app_ND.py
+```
 
-- Open the Streamlit web interface (usually at [http://localhost:8501](http://localhost:8501)).
-- Watch the live video with bounding boxes and IDs.
-- View the occupancy chart.
-- Check `people_tracking_bytetrack_log.csv` for the detection and tracking log.
+### 5. Monitor Output
+
+- Check `people_tracking_log.csv` for logs.
+- Subscribe to your MQTT topic to view published occupancy data.
 
 ---
 
 ## Output
 
-- **people_tracking_bytetrack_log.csv**  
-  Each row contains: `Timestamp, People_Count, Active_IDs`
+- **people_tracking_log.csv**  
+  Each row contains: `Timestamp, Occupancy`
+
+- **MQTT Payload Example:**
+```json
+{
+  "timestamp": "2025-06-17T14:27:10.512789",
+  "occupancy": 12
+}
+```
 
 ---
 
@@ -74,16 +88,15 @@ text
 
 - Python 3.8+
 - [ultralytics](https://pypi.org/project/ultralytics/)
-- [streamlit](https://pypi.org/project/streamlit/)
-- [plotly](https://pypi.org/project/plotly/)
 - [opencv-python](https://pypi.org/project/opencv-python/)
+- [paho-mqtt](https://pypi.org/project/paho-mqtt/)
 
 ---
 
 ## Notes
 
 - ByteTrack is used via Ultralytics' built-in tracking (`tracker="bytetrack.yaml"`).
-- The code is easy to adapt for other object classes or video sources.
-- For best performance, use a machine with a compatible GPU.
+- Code can be extended to support region-based counting, MQTT authentication, or camera stream inputs.
+- GPU recommended for real-time performance.
 
 ---
