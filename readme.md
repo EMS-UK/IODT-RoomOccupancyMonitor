@@ -48,7 +48,7 @@ Place the `yolo11m.pt` (or other YOLOv11 model) in your working directory. You c
 
 ```bash
 from ultralytics import YOLO
-YOLO('yolov8n.pt')
+YOLO('yolo11m.pt')
 ```
 
 ### 3. Configure Script
