@@ -20,7 +20,7 @@ It logs occupancy data (number of people in frame) with timestamps and publishes
 ## How It Works
 
 1. **Detection:**  
-   Each frame is processed by YOLOv8 to detect people (`class=0`).
+   Each frame is processed by YOLOv11 to detect people (`class=0`).
 
 2. **Tracking:**  
    ByteTrack assigns persistent IDs to detected individuals to track them across frames.
@@ -42,7 +42,7 @@ It logs occupancy data (number of people in frame) with timestamps and publishes
 pip install ultralytics opencv-python paho-mqtt
 ```
 
-### 2. Download the YOLOv8 Model
+### 2. Download the YOLOv11 Model
 
 Place the `yolo11m.pt` (or other YOLOv11 model) in your working directory. You can get it from:
 
